@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calculadora para Triángulos LLA - Pro Edition</title>
+    <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js" async></script>
+    <style>
+        :root {
+            --primary: #1e3a8a; --secondary: #475569; --success: #15803d;
+            --bg: #f8fafc; --card: #ffffff; --text: #0f172a; --border: #cbd5e1;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: 'Inter', system-ui, sans-serif; background: var(--bg); color: var(--text); padding: 2rem 1rem; }
+        .container { max-width: 1100px; margin: 0 auto; }
+
+        header { text-align: center; margin-bottom: 3rem; }
+        header h1 { font-size: 2.2rem; font-weight: 800; color: var(--primary); margin-bottom: 0.5rem; }
+        header p { font-size: 1rem; color: var(--secondary); font-weight: 600; text-transform: uppercase; letter-spacing: 0.1em; }
+
+        .main-grid { display: grid; grid-template-columns: 320px 1fr; gap: 2rem; }
+        @media (max-width: 900px) { .main-grid { grid-template-columns: 1fr; } }
+
+        .card { background: var(--card); border-radius: 12px; padding: 1.8rem; border: 1px solid var(--border); box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); margin-bottom: 1.5rem; }
+        .section-title { font-size: 0.8rem; font-weight: 800; text-transform: uppercase; color: var(--secondary); margin-bottom: 1.2rem; border-bottom: 1px solid var(--border); padding-bottom: 6px; }
+
+        .input-item { margin-bottom: 1rem; }
+        label { display: block; font-size: 0.85rem; font-weight: 700; margin-bottom: 0.4rem; color: var(--text); }
+        input { width: 100%; padding: 0.8rem; border-radius: 6px; border: 1px solid var(--border); font-family: 'Roboto Mono', monospace; font-size: 1rem; transition: border-color 0.2s; }
+        input:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px rgba(30,58,138,0.1); }
+
+        .btn-calc { width: 100%; padding: 1rem; background: var(--primary); color: white; border: none; border-radius: 6px; font-weight: 700; cursor: pointer; font-size: 1rem; margin-bottom: 1rem; transition: opacity 0.2s; }
+        .btn-calc:hover { background: #172554; }
+        .btn-calc:disabled { opacity: 0.5; cursor: not-allowed; }
+
+        .nota-panel {
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-left: 3px solid #94a3b8;
+            border-radius: 6px;
+            padding: 0.7rem 0.9rem;
+            font-size: 0.76rem;
+            color: #475569;
+            line-height: 1.55;
+        }
+
+        .badge { display: inline-block; padding: 0.4rem 0.8rem; border-radius: 4px; font-size: 0.7rem; font-weight: 900; margin-bottom: 1.2rem; text-transform: uppercase; }
+        .b-ok   { background: #dcfce7; color: #166534; }
+        .b-multi{ background: #fffbeb; color: #92400e; }
+        .b-err  { background: #fee2e2; color: #991b1b; }
+
+        .msg-error { font-size: 0.95rem; color: #7f1d1d; background: #fff5f5; border: 1px solid #fecaca; border-radius: 8px; padding: 1rem 1.2rem; line-height: 1.6; }
+
+        .math-block { background: #f8fafc; padding: 1.5rem; border-radius: 8px; border-left: 4px solid var(--primary); margin: 1.5rem 0; overflow-x: auto; }
+
+        .results-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.2rem; margin-top: 0.5rem; }
+        @media (max-width: 600px) { .results-grid { grid-template-columns: 1fr; } }
+
+        .results-group-title { font-size: 0.72rem; font-weight: 800; text-transform: uppercase; color: var(--secondary); letter-spacing: 0.06em; margin-bottom: 0.6rem; padding-bottom: 5px; border-bottom: 1px solid var(--border); }
+
+        .results-table { width: 100%; border-collapse: collapse; }
+        .results-table td { padding: 9px 0; border-bottom: 1px solid #f1f5f9; font-size: 0.95rem; }
+        .results-table td:last-child { text-align: right; font-weight: 700; font-family: 'Roboto Mono', monospace; color: var(--primary); }
+
+        .tab-nav { display: flex; gap: 8px; margin-bottom: 1.5rem; }
+        .tab-nav button { padding: 0.6rem 1.2rem; background: #e2e8f0; border: none; border-radius: 4px; cursor: pointer; font-weight: 700; color: var(--secondary); }
+        .tab-nav button.active { background: var(--primary); color: white; }
+
+        .rect-badge { display: inline-block; background: #f0fdf4; color: var(--success); border: 1px solid #bbf7d0; border-radius: 4px; font-size: 0.75rem; font-weight: 800; padding: 0.3rem 0.7rem; margin-bottom: 1rem; text-transform: uppercase; }
+
+        canvas { width: 100%; background: #ffffff; border: 1px solid var(--border); border-radius: 8px; margin-top: 1.2rem; display: block; }
+
+        footer { margin-top: 4rem; padding: 2rem 0; border-top: 1px solid var(--border); text-align: center; }
+        .f-author { font-weight: 800; font-size: 1.1rem; color: var(--text); margin-bottom: 0.5rem; }
+        .f-links a { color: var(--primary); text-decoration: none; font-weight: 600; margin: 0 10px; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <header>
+        <h1>Calculadora para Triángulos LLA</h1>
+        <p>Teorema del Seno</p>
+    </header>
+
+    <div class="main-grid">
+        <aside class="card">
+            <div class="section-title">Entrada de Parámetros</div>
+            <div class="input-item">
+                <label for="inA">Ángulo A (Grados °)</label>
+                <input type="number" id="inA" step="any" value="35" aria-label="Ángulo A en grados">
+            </div>
+            <div class="input-item">
+                <label for="ina">Lado a (Opuesto a A)</label>
+                <input type="number" id="ina" step="any" value="6" aria-label="Longitud del lado a">
+            </div>
+            <div class="input-item">
+                <label for="inb">Lado b (Adyacente a A)</label>
+                <input type="number" id="inb" step="any" value="8" aria-label="Longitud del lado b">
+            </div>
+            <button class="btn-calc" id="btnMain" onclick="mainEngine()">Calcular</button>
+            <div class="nota-panel">
+                Cálculos internos con precisión de 64 bits. Manejo de imprecisiones infinitesimales mediante épsilon (\( \epsilon \)) para garantizar consistencia geométrica.
+            </div>
+        </aside>
+
+        <section id="result-view">
+            <div class="card" style="text-align:center; padding:5rem 1rem; color:var(--secondary);">
+                Inicie el cálculo para obtener resultados de alta precisión y desarrollo matemático.
+            </div>
+        </section>
+    </div>
+
+    <footer>
+        <div class="f-author">Recurso educativo desarrollado por Santiago Fiore</div>
+        <div class="f-links">
+            <a href="https://sites.google.com/view/santiago-fiore/portada" target="_blank">Sitio Web</a> |
+            <a href="mailto:santiagomartinfiore@gmail.com">Contacto</a>
+        </div>
+        <div style="margin-top:12px; font-size:0.8rem; color:var(--secondary);">Licencia Creative Commons CC BY-NC-SA 4.0 &bull; 2026</div>
+    </footer>
+</div>
+
+<script>
+    const PI = Math.PI;
+    const rad = (d) => d * PI / 180;
+    const deg = (r) => r * 180 / PI;
+    const fmt2 = (n) => Number(n).toFixed(2);
+    const fmt6 = (n) => Number(n).toFixed(6);
+
+    let solutions = [];
+    let isRendering = false;
+
+    // Reset view on input change para mejor UX
+    document.querySelectorAll('input').forEach(input => {
+        input.addEventListener('input', () => {
+            document.getElementById('result-view').innerHTML = `
+                <div class="card" style="text-align:center; padding:5rem 1rem; color:var(--secondary);">
+                    Los valores han cambiado. Presione "Calcular" para actualizar los resultados.
+                </div>`;
+        });
+    });
+
+    async function mainEngine() {
+        if (isRendering) return;
+        
+        const A = parseFloat(document.getElementById('inA').value);
+        const a = parseFloat(document.getElementById('ina').value);
+        const b = parseFloat(document.getElementById('inb').value);
+
+        if ([A, a, b].some(isNaN) || A <= 0 || A >= 180 || a <= 0 || b <= 0) {
+            alert("Error: Por favor, ingrese valores numéricos positivos válidos.");
+            return;
+        }
+
+        const sinA = Math.sin(rad(A));
+        const h = b * sinA;
+        const eps = 1e-10;
+        solutions = [];
+        let type = "", errorMsg = "";
+
+        if (A >= 90 - eps) {
+            if (a > b + eps) {
+                const sinB = (b * sinA) / a;
+                const B = deg(Math.asin(Math.max(-1, Math.min(1, sinB))));
+                solutions.push(solve(A, B, a, b));
+                type = "ok";
+            } else {
+                type = "err";
+                errorMsg = A >= 90 + eps 
+                    ? `En un triángulo con ángulo obtuso (\\( \\hat{A} = ${fmt2(A)}^\\circ \\)), el lado opuesto \\( a \\) debe ser mayor que el adyacente \\( b \\).`
+                    : `En un triángulo rectángulo, la hipotenusa \\( a \\) debe ser mayor que el cateto \\( b \\).`;
+            }
+        } else {
+            if (a < h - eps) {
+                type = "err";
+                errorMsg = `La altura es \\( h = ${fmt6(h)} \\). Como \\( a = ${fmt6(a)} < h \\), el arco no alcanza la recta base.`;
+            } else if (Math.abs(a - h) < eps) {
+                solutions.push(solve(A, 90, a, b));
+                type = "ok";
+            } else if (a >= b - eps) {
+                const sinB = (b * sinA) / a;
+                const B = deg(Math.asin(Math.max(-1, Math.min(1, sinB))));
+                solutions.push(solve(A, B, a, b));
+                type = "ok";
+            } else {
+                const sinB = (b * sinA) / a;
+                const B1 = deg(Math.asin(Math.max(-1, Math.min(1, sinB))));
+                solutions.push(solve(A, B1, a, b));
+                solutions.push(solve(A, 180 - B1, a, b));
+                type = "multi";
+            }
+        }
+        await renderView(type, errorMsg);
+    }
+
+    function solve(A, B, a, b) {
+        const C = Math.max(0, 180 - A - B);
+        const sinA = Math.sin(rad(A));
+        const sinC = Math.sin(rad(C));
+        const c = (a * sinC) / (sinA || 1e-10);
+        const area = 0.5 * c * (b * sinA);
+        return { A, B, C, a, b, c, h: b * sinA, area, per: a + b + c };
+    }
+
+    async function renderView(type, errorMsg) {
+        isRendering = true;
+        const btn = document.getElementById('btnMain');
+        btn.disabled = true;
+        const container = document.getElementById('result-view');
+        const badgeTxt = type === "err" ? "Sin Solución" : (type === "multi" ? "2 Soluciones" : "1 Solución Única");
+        const badgeCls = type === "err" ? "b-err" : (type === "multi" ? "b-multi" : "b-ok");
+
+        let html = `<div class="card"><span class="badge ${badgeCls}">${badgeTxt}</span>`;
+        if (type === "err") {
+            html += `<div class="msg-error">${errorMsg}</div>`;
+        } else {
+            if (solutions.length > 1) {
+                html += `<div class="tab-nav">` +
+                    solutions.map((_, i) =>
+                        `<button class="${i===0?'active':''}" onclick="setTab(${i}, this)">Solución ${i+1}</button>`
+                    ).join('') + `</div>`;
+            }
+            html += `<div id="tab-content"></div>`;
+        }
+        html += `</div>`;
+        container.innerHTML = html;
+        
+        try {
+            await MathJax.typesetPromise();
+            if (solutions.length > 0) setTab(0);
+        } finally {
+            btn.disabled = false;
+            isRendering = false;
+        }
+    }
+
+    function setTab(idx, btn) {
+        if (btn) {
+            document.querySelectorAll('.tab-nav button').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+        }
+        const s = solutions[idx];
+        const panel = document.getElementById('tab-content');
+        const isRect = [s.A, s.B, s.C].some(ang => Math.abs(ang - 90) < 1e-4);
+
+        panel.innerHTML = `
+            <div class="math-block">
+                <div class="section-title" style="border:0; margin-bottom:0.8rem">Desarrollo Paso a Paso</div>
+                \\[ \\text{sen}\\, A = ${fmt6(Math.sin(rad(s.A)))}, \\quad h = b \\cdot \\text{sen}\\, A = ${fmt6(s.h)} \\]
+                \\[ \\text{sen}\\, B = \\frac{b \\cdot \\text{sen}\\, A}{a} = \\frac{${fmt6(s.b)} \\cdot ${fmt6(Math.sin(rad(s.A)))}}{${fmt6(s.a)}} = ${fmt6(Math.sin(rad(s.B)))} \\]
+                \\[ \\hat{B} = \\operatorname{arcsen}\\!\\left(${fmt6(Math.sin(rad(s.B)))}\\right) = ${fmt6(s.B)}^\\circ \\]
+                \\[ \\hat{C} = ${fmt6(180)}^\\circ - (${fmt6(s.A)}^\\circ + ${fmt6(s.B)}^\\circ) = ${fmt6(s.C)}^\\circ \\]
+                \\[ c = \\frac{a \\cdot \\text{sen}\\, C}{\\text{sen}\\, A} = ${fmt6(s.c)} \\]
+            </div>
+
+            ${isRect ? `<div class="rect-badge">Triángulo rectángulo detectado</div>` : ''}
+
+            <div class="results-grid">
+                <div>
+                    <div class="results-group-title">Ángulos y Lados</div>
+                    <table class="results-table">
+                        <tr><td>Ángulo \\( \\hat{A} \\)</td><td>${fmt2(s.A)}°</td></tr>
+                        <tr><td>Ángulo \\( \\hat{B} \\)</td><td>${fmt2(s.B)}°</td></tr>
+                        <tr><td>Ángulo \\( \\hat{C} \\)</td><td>${fmt2(s.C)}°</td></tr>
+                        <tr><td>Lado \\( a \\) (opuesto A)</td><td>${fmt2(s.a)}</td></tr>
+                        <tr><td>Lado \\( b \\) (opuesto B)</td><td>${fmt2(s.b)}</td></tr>
+                        <tr><td>Lado \\( c \\) (opuesto C)</td><td>${fmt2(s.c)}</td></tr>
+                    </table>
+                </div>
+                <div>
+                    <div class="results-group-title">Medidas Derivadas</div>
+                    <table class="results-table">
+                        <tr><td>Altura sobre \\( c \\)</td><td>${fmt2(s.h)}</td></tr>
+                        <tr><td>Perímetro \\( P \\)</td><td>${fmt2(s.per)}</td></tr>
+                        <tr><td>Área</td><td>${fmt2(s.area)} u²</td></tr>
+                    </table>
+                </div>
+            </div>
+            <canvas id="tri-canvas"></canvas>
+        `;
+        MathJax.typesetPromise();
+        requestAnimationFrame(() => drawTriangle(s));
+    }
+
+    function drawTriangle(s) {
+        const canvas = document.getElementById('tri-canvas');
+        if (!canvas) return;
+        const ctx = canvas.getContext('2d');
+        const W = canvas.offsetWidth || 600, H = 360, dpr = window.devicePixelRatio || 1;
+        canvas.width = W * dpr; canvas.height = H * dpr;
+        ctx.scale(dpr, dpr);
+        ctx.clearRect(0, 0, W, H);
+
+        const A_g = { x: 0, y: 0 }, B_g = { x: s.c, y: 0 }, C_g = { x: s.b * Math.cos(rad(s.A)), y: s.b * Math.sin(rad(s.A)) };
+        const allX = [A_g.x, B_g.x, C_g.x], allY = [A_g.y, B_g.y, C_g.y];
+        const minX = Math.min(...allX), maxX = Math.max(...allX), minY = Math.min(...allY), maxY = Math.max(...allY);
+        const M = 70, sc = Math.min((W - 2 * M) / (maxX - minX || 1), (H - 2 * M) / (maxY - minY || 1));
+        const ox = M + ((W - 2 * M) - (maxX - minX) * sc) / 2, oy = M + ((H - 2 * M) - (maxY - minY) * sc) / 2;
+        const tx = (x) => ox + (x - minX) * sc, ty = (y) => (H - oy) - (y - minY) * sc;
+        const Ac = { x: tx(A_g.x), y: ty(A_g.y) }, Bc = { x: tx(B_g.x), y: ty(B_g.y) }, Cc = { x: tx(C_g.x), y: ty(C_g.y) }, Fc = { x: tx(C_g.x), y: ty(0) };
+        const centX = (Ac.x + Bc.x + Cc.x) / 3, centY = (Ac.y + Bc.y + Cc.y) / 3;
+
+        ctx.beginPath(); ctx.moveTo(Ac.x, Ac.y); ctx.lineTo(Bc.x, Bc.y); ctx.lineTo(Cc.x, Cc.y); ctx.closePath();
+        ctx.fillStyle = "rgba(30,58,138,0.05)"; ctx.fill();
+        ctx.strokeStyle = "#0f172a"; ctx.lineWidth = 2.5; ctx.stroke();
+        if (s.h > 0.05) {
+            ctx.setLineDash([5, 4]); ctx.beginPath(); ctx.moveTo(Cc.x, Cc.y); ctx.lineTo(Fc.x, Fc.y);
+            ctx.strokeStyle = "#15803d"; ctx.lineWidth = 1.5; ctx.stroke(); ctx.setLineDash([]);
+        }
+
+        const label = (p, name, isVertex) => {
+            ctx.font = isVertex ? "bold 15px 'Inter'" : "italic bold 15px 'Inter'";
+            const dx = p.x - centX, dy = p.y - centY, len = Math.sqrt(dx*dx + dy*dy) || 1;
+            const dist = isVertex ? 25 : 30;
+            ctx.fillStyle = isVertex ? "#0f172a" : "#334155";
+            ctx.textAlign = "center";
+            ctx.fillText(name, p.x + (dx/len)*dist, p.y + (dy/len)*dist + 5);
+        };
+
+        label(Ac, "A", true); label(Bc, "B", true); label(Cc, "C", true);
+        label({x: (Ac.x+Cc.x)/2, y:(Ac.y+Cc.y)/2}, "b", false);
+        label({x: (Cc.x+Bc.x)/2, y:(Cc.y+Bc.y)/2}, "a", false);
+        label({x: (Ac.x+Bc.x)/2, y:(Ac.y+Bc.y)/2}, "c", false);
+    }
+</script>
+</body>
+</html>
