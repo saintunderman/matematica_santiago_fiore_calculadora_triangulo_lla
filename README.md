@@ -15,13 +15,6 @@ Una herramienta educativa diseñada para resolver el **caso ambiguo (LLA)** del 
 * **Visualización Dinámica**: Generación de gráficos mediante un motor de renderizado en `<canvas>` que escala el triángulo proporcionalmente según los resultados.
 * **Responsive Design**: Interfaz moderna construida con CSS nativo, optimizada para dispositivos móviles y escritorio.
 
-## Tecnologías Utilizadas
-
-* **HTML5 & CSS3**: Estructura y diseño basado en variables modernas y Grid Layout.
-* **JavaScript (Vanilla)**: Motor lógico de cálculo trigonométrico y manipulación del DOM.
-* **MathJax**: Motor de visualización para notación matemática LaTeX.
-* **Canvas API**: Para la representación gráfica vectorial del triángulo.
-
 ## Lógica de Cálculo
 
 El sistema evalúa la relación entre el ángulo dado $A$, el lado opuesto $a$ y el lado adyacente $b$, considerando la altura $h = b \cdot \sin(A)$:
