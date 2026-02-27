@@ -28,6 +28,14 @@ Una herramienta educativa diseñada para resolver el **caso ambiguo (LLA)** del 
 
 El sistema evalúa la relación entre el ángulo dado $A$, el lado opuesto $a$ y el lado adyacente $b$, considerando la altura $h = b \cdot \sin(A)$:
 
+| Condición | Resultado |
+| :--- | :--- |
+| $A \ge 90^\circ$ y $a \le b$ | **Sin solución** |
+| $a < h$ | **Sin solución** |
+| $a = h$ | **1 Solución (Triángulo Rectángulo)** |
+| $a > b$ | **1 Solución** |
+| $h < a < b$ | **2 Soluciones (Caso Ambiguo)** |
+
 
 ## Instalación y Uso
 
