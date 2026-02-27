@@ -33,3 +33,10 @@ El sistema evalúa la relación entre el ángulo dado $A$, el lado opuesto $a$ y
 No requiere dependencias externas ni compilación. 
 
 https://saintunderman.github.io/matematica_santiago_fiore_calculadora_triangulo_lla/
+
+## Licencia y Créditos
+
+Desarrollado por **Santiago Fiore**.
+
+* **Sitio Web:** https://sites.google.com/view/santiago-fiore/portada
+* **Licencia:** Creative Commons CC BY-NC-SA 4.0 (Atribución-NoComercial-CompartirIgual).
